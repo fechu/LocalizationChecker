@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Symfony\\Component\\Console\\' => array($vendorDir . '/symfony/console'),
+    '' => array($baseDir . '/src'),
 );
