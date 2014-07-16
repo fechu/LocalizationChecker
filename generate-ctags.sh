@@ -18,4 +18,4 @@ ctags -f tags \
     --languages=php \
     --regex-PHP='/abstract class ([^ ]*)/\1/c/' \
     --regex-PHP='/interface ([^ ]*)/\1/c/' \
-    src/
+    src/ tests/
