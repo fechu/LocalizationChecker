@@ -1,2 +1,5 @@
 # Ignore ctag files
 *tags
+
+# Ignore Swap files
+*.swp
