@@ -23,7 +23,7 @@ class Token {
      * The identifier of this token. 
      * @var string
      */
-    protected $identifier;
+    protected $id;
 
     /**
      * The match object which is returned from the regex method. 
@@ -49,7 +49,7 @@ class Token {
     public function __construct($regex, $identifier)
     {
         $this->regex = $regex;
-        $this->identifier = $identifier;
+        $this->id = $identifier;
     }
 
     /**
@@ -86,7 +86,7 @@ class Token {
      */
     public function getIdentifier()
     {
-        return $this->identifier;
+        return $this->id;
     }
 
     /**

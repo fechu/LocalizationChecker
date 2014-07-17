@@ -35,11 +35,21 @@ class Lexer
         // Check if all tokenDefinitions are correct objects
         $i = 0;
         foreach ($tokenDefinitions as $tokenDef){
+            // Check if it is a Token object
             if (!is_a($tokenDef, "SM\Lexer\Token")) {
                 throw new \InvalidArgumentException(
                     "Token definition at index " . $i . " is invalid. No subclass of Token."
                 );
             }
+
+            // Check if the regex is non empty.
+            $regex = $tokenDef->getRegex();
+            if($regex == NULL || $regex == "") {
+                throw new \InvalidArgumentException(
+                    "Token definition at index " . $i . " is invalid. Token must contain regex."
+                );
+            }
+
             $i++;
         }
         
@@ -109,7 +119,7 @@ class Lexer
             $matchFound = preg_match($regex, $line, $matches);
             if ($matchFound) {
                 // Create a new token. We had a match.
-                $token = new Token($tokenDef->getRegex(), $tokenDef->getIdentifier());
+                $token = clone $tokenDef;
                 $token->setMatch($matches, $lineNumber, $offset);
                 
                 // Adjust offset and line string

@@ -4,6 +4,7 @@ namespace SM\Lexer;
 
 use SM\Lexer\Lexer;
 use SM\Lexer\Token;
+use SM\Lexer\CustomToken;
 
 /**
  * @author Sandro Meier
@@ -45,6 +46,18 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         $tokenDef = array(
             new Token("regex", "identifier"),
             "Invalid Token definition"
+        );
+
+        $lexer = new Lexer($tokenDef);
+    }
+
+    public function testLexerDoesNotAcceptTokenDefinitionWithEmptyRegex()
+    {
+        $this->setExpectedException("InvalidArgumentException");
+
+        // Prepare token definition
+        $tokenDef = array(
+            new Token("", "identifier"),
         );
 
         $lexer = new Lexer($tokenDef);
@@ -167,6 +180,29 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($text, $match[0]);
         $this->assertEquals(123, $match[1], "Capture group should have matched numbers");
     }
+
+    ////////////////////////////////////////////////////////////////////////
+    // Custom Token classes
+    ////////////////////////////////////////////////////////////////////////
+    
+    public function testLexerReturnsObjectsOfCustomTokenClasses()
+    {
+        $text = "regex";
+
+        $definition = new CustomToken();
+
+        $lexer = new Lexer($definition);
+        $tokens = $lexer->tokenize($text);
+
+        $this->assertCount(1, $tokens, "Should get one token out of it");
+        $token = $tokens[0];
+
+        $this->assertTrue(
+            is_a($token, "SM\Lexer\CustomToken"), 
+            "Should return object of same type as definition."
+        );
+    }
+    
 
     ////////////////////////////////////////////////////////////////////////
     // Helper Methods

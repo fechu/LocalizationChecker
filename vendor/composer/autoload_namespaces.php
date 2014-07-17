@@ -8,5 +8,5 @@ $baseDir = dirname($vendorDir);
 return array(
     'Symfony\\Component\\Yaml\\' => array($vendorDir . '/symfony/yaml'),
     'Symfony\\Component\\Console\\' => array($vendorDir . '/symfony/console'),
-    '' => array($baseDir . '/src'),
+    '' => array($baseDir . '/src', $baseDir . '/tests'),
 );
