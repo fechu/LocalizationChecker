@@ -7,10 +7,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use LocalizationChecker\Lexer\TranslationKeyToken;
 use SM\Lexer\Lexer;
-use LocalizationChecker\Lexer\CommentToken;
 use SM\String\UTF16Decoder;
+use LocalizationChecker\Lexer\TranslationEntryToken;
+use LocalizationChecker\Lexer\CommentToken;
 
 /**
  * Class StringsCheckerCommand
@@ -112,7 +112,7 @@ EOF
     {
         return array(
             new CommentToken(),
-            new TranslationKeyToken(),
+            new TranslationEntryToken(),
         );
     }
 }

@@ -9,7 +9,7 @@ use SM\Lexer\Token;
  *
  *  "my.key" = "Die Übersetzung"
  */
-class TranslationKeyToken extends Token
+class TranslationEntryToken extends Token
 {
     /**
      * The identifier for a translation key token
@@ -24,5 +24,27 @@ class TranslationKeyToken extends Token
         $regex  = '"(.*?)"\s*=\s*"(.*?)";'; 
         parent::__construct($regex, static::$identifier);
     }
+
+    ////////////////////////////////////////////////////////////////////////
+    // Getter/Setter
+    ////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * Get the key of this translation.
+     */
+    public function getTranslationKey()
+    {
+        return isset($this->match[1]) ? $this->match[1] : NULL;
+    }
+
+    /**
+     * Get the value of this translation
+     */
+    public function getTranslationValue()
+    {
+        return isset($this->match[2]) ? $this->match[2] : NULL;
+    }
+    
+    
 }
 
