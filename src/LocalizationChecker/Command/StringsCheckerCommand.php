@@ -60,12 +60,11 @@ EOF
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $files = $files = $input->getArgument('files');
+        $files = $input->getArgument('files');
         if ($files) {
             // Parse all files
             foreach($files as $file) {
                 $tokens = $this->parseFile($file);
-                var_dump($tokens);
             }
         }
         else {
