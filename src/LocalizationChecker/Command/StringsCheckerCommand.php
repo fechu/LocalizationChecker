@@ -6,6 +6,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
+use LocalizationChecker\Lexer\TranslationKeyToken;
+use SM\Lexer\Lexer;
+use LocalizationChecker\Lexer\CommentToken;
+use SM\String\UTF16Decoder;
 
 /**
  * Class StringsCheckerCommand
@@ -57,10 +62,14 @@ EOF
     {
         $files = $files = $input->getArgument('files');
         if ($files) {
-            $output->writeln("Checking files: " . implode(', ', $files));
+            // Parse all files
+            foreach($files as $file) {
+                $tokens = $this->parseFile($file);
+                var_dump($tokens);
+            }
         }
         else {
-            $output->writeln("No files to check");
+            $output->writeln("<error>No files to check</error>");
         }
     }
 
@@ -77,7 +86,34 @@ EOF
      */
     protected function parseFile($path)
     {
-        
+        $fs = new Filesystem();
+
+        // Check if the given file exists
+        if(!$fs->exists($path)) {
+            throw new \InvalidArgumentException(
+                "File at path \"" . $path . "\" does not exist."
+            );
+        }
+
+        // Tokenize the files content.
+        // If the lexer file, an exception is thrown.
+        $lexer = new Lexer($this->getTokenDefinitions());
+        $content = file_get_contents($path);
+        $content = UTF16Decoder::decode($content);
+        $tokens = $lexer->tokenize($content);
+
+        return $tokens;
+    }
+
+    /**
+     * Returns the token definitions used to parse the files.
+     */
+    public function getTokenDefinitions()
+    {
+        return array(
+            new CommentToken(),
+            new TranslationKeyToken(),
+        );
     }
 }
 
