@@ -25,8 +25,17 @@ class StringsCheckerCommand extends Command
      */
     protected $output;
 
+    /**
+     * Contains an associatve array which has the file paths as keys and the tokenized 
+     * version of the content as the value.
+     */
+    protected $tokens;
+
     protected function configure()
     {
+        // Setup
+        $this->tokens = array();
+
         $this->setName('check:strings');
         $this->setDescription('Check the contents of *.strings files.');
         $this->addArgument(
@@ -72,24 +81,46 @@ EOF
 
         $errorCount = 0;
         $files = $input->getArgument('files');
-        if ($files) {
-            // Parse all files
-            foreach($files as $file) {
-                $result = $this->parseFile($file);
-
-                // Check if the parsing failed.
-                if ($result == false) {
-                    $errorCount++;
-                }
-            }
-        }
-        else {
+        if (!$files) {
             $output->writeln("<error>No files to check</error>");
         }
+
+        // Parse the files.
+        $errorCount += $this->parseFiles($files);
+
+        // Check if all keys of the first file exist in the rest of the files.
 
         // Exit code should be number of errors.
         return $errorCount;
     }
+
+    /**
+     * Parses an array of files
+     *
+     * @param array  $files  An array of paths to files.
+     * @return The amount of files where errors occured.
+     */
+    protected function parseFiles($files)
+    {
+        $errorCount = 0;
+
+        // Parse all files
+        foreach($files as $file) {
+            $result = $this->parseFile($file);
+
+            // Check if the parsing failed.
+            if ($result == false) {
+                $errorCount++;
+            }
+            else {
+                // Add the result to the tokens array
+                $this->tokens[$file] = $result;
+            }
+        }
+
+        return $errorCount;
+    }
+    
 
     /**
      * Parses the .strings file at the given path.

@@ -43,6 +43,21 @@ class StringsCheckerCommandTest extends \PHPUnit_Framework_TestCase
             "Should return 2 if a Syntax error occured in one file."
         );
     }
+
+    public function testReturnsNonzeroStatuscodeWhenKeysDontExist()
+    {
+        $commandTester = $this->executeCommand(array(
+            "tests/resources/en.lproj/MissingKey.strings",
+            "tests/resources/de.lproj/MissingKey.strings"
+        ));
+
+        $this->assertEquals(
+            1, 
+            $commandTester->getStatusCode(),
+            "Should return 1 as status code if a key is missing."
+        );
+    }
+    
     
 
     ////////////////////////////////////////////////////////////////////////
@@ -72,7 +87,7 @@ class StringsCheckerCommandTest extends \PHPUnit_Framework_TestCase
         $commandTester = new CommandTester($command);
         $commandTester->execute(
             array(
-                'command'   => $command->getName(), 
+                'command'   => $command->getName(),
                 'files'     => $files
             )
         );
