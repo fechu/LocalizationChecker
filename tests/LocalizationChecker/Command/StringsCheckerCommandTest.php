@@ -18,7 +18,7 @@ class StringsCheckerCommandTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testThrowsExceptionWhenSyntaxInCommentIsWrong()
+    public function testStatusCodeContainsNumberOfErrors1()
     {
         $commandTester = $this->executeCommand("tests/resources/InvalidCommentSyntax.strings");
 
@@ -27,7 +27,21 @@ class StringsCheckerCommandTest extends \PHPUnit_Framework_TestCase
             $commandTester->getStatusCode(),
             "Should return 1 if a Syntax error occured in one file."
         );
-        
+    }
+
+    
+    public function testStatusCodeContainsNumberOfErrors2()
+    {
+        $commandTester = $this->executeCommand(array(
+            "tests/resources/InvalidCommentSyntax.strings",
+            "tests/resources/InvalidTranslationEntrySyntax.strings"
+        ));
+
+        $this->assertEquals(
+            2, 
+            $commandTester->getStatusCode(),
+            "Should return 2 if a Syntax error occured in one file."
+        );
     }
     
 

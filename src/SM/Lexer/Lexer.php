@@ -14,7 +14,12 @@ class Lexer
      * specified tokens are before less specified tokens. E.g: "root" should be before "[a-z]+". 
      * Otherwise the text "root" gets captured by "[a-z]+". 
      */
-    public $tokenDefinitions;
+    protected $tokenDefinitions;
+
+    /**
+     * The last error that occured.
+     */
+    protected $error;
     
     /**
      * Construct a lexer with tokens as definition. 
@@ -73,6 +78,9 @@ class Lexer
      */
     public function tokenize( $text )
     {
+        // Reset error
+        $this->error = NULL;
+
         // Divide the text into lines
         $text = str_replace("\r\n", "\n", $text);
         $lines = explode("\n", $text);
@@ -81,8 +89,14 @@ class Lexer
         $tokens = array();
         $lineNumber = 1;
         foreach ($lines as $line){
-            $lineTokens = $this->tokenizeLine($line, $lineNumber);
-            $tokens = array_merge($tokens, $lineTokens);
+            $result = $this->tokenizeLine($line, $lineNumber);
+
+            // Check if an error occured
+            if ($result === false) {
+                return false;
+            }
+
+            $tokens = array_merge($tokens, $result);
             $lineNumber++;
         }
         
@@ -142,10 +156,14 @@ class Lexer
 
         // Check if the whole line was tokenized
         if (strlen($line) > 0) {
-            throw new \InvalidArgumentException(
-                "Could not parse token starting at offset " . $offset . " on line " . $lineNumber . 
-                " No token definition found that matches: " . $line
+            // Populate the error object and return false!
+            $this->error = array(
+                "description"   => "Could not parse token. No token definition found that matches: ". $line,
+                "line"          => $lineNumber,
+                "offset"        => $offset
             );
+
+            return false;
         }
 
         return $tokens;
@@ -163,6 +181,21 @@ class Lexer
     public function getTokenDefinitions()
     {
         return $this->tokenDefinitions;
+    }
+
+    /**
+     * Get the error that last occured when tokenizing a test.
+     *
+     * return array  An array containing 3 keys:
+     *                   - description
+     *                   - line
+     *                   - offset
+     *
+     *              If no error occured this method fill return NULL.
+     */
+    public function getError()
+    {
+        return $this->error;
     }
 }
 

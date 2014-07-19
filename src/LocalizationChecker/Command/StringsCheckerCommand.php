@@ -18,6 +18,13 @@ use LocalizationChecker\Lexer\CommentToken;
  */
 class StringsCheckerCommand extends Command
 {
+    /**
+     * Reference to the output interface object which can be used to output something
+     *
+     * @var OutputInterface
+     */
+    protected $output;
+
     protected function configure()
     {
         $this->setName('check:strings');
@@ -60,16 +67,28 @@ EOF
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // Store reference to output interface object
+        $this->output = $output;
+
+        $errorCount = 0;
         $files = $input->getArgument('files');
         if ($files) {
             // Parse all files
             foreach($files as $file) {
-                $tokens = $this->parseFile($file);
+                $result = $this->parseFile($file);
+
+                // Check if the parsing failed.
+                if ($result == false) {
+                    $errorCount++;
+                }
             }
         }
         else {
             $output->writeln("<error>No files to check</error>");
         }
+
+        // Exit code should be number of errors.
+        return $errorCount;
     }
 
     /**
@@ -78,10 +97,10 @@ EOF
      * @param string    $path   The path to the file that should be parsed. If the file does
      *                          not exist, an InvalidArgumentException is thrown.
      * 
-     * @return The array of tokens if the lexer could sucessfully tokenize the file.
+     * @return array|bool       The array of tokens if the lexer could sucessfully tokenize the 
+     *                          file or false if tokenizing the file failed.
      *
-     * @throws InvalidArgumentException If the lexer failes to tokenize the file's content, or if
-     *                                  the file at the given path does not exist.
+     * @throws InvalidArgumentException If the file at the given path does not exist.
      */
     protected function parseFile($path)
     {
@@ -99,9 +118,19 @@ EOF
         $lexer = new Lexer($this->getTokenDefinitions());
         $content = file_get_contents($path);
         $content = UTF16Decoder::decode($content);
-        $tokens = $lexer->tokenize($content);
 
-        return $tokens;
+        // $result is either an array of tokens or false.
+        $result = $lexer->tokenize($content);
+
+        // Output some information if tokenizing failed
+        if ($result == false) {
+            $error = $lexer->getError();
+            $this->output->writeln("<error>Failed to parse file \"" . $path  . "\"</error>");
+            $this->output->writeln("Line: " . $error['line'] . " Offset: " . $error['offset']);
+            $this->output->writeln($error['description']);
+        }
+
+        return $result;
     }
 
     /**

@@ -27,6 +27,11 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $this->lexer->getTokenDefinitions());
     }
 
+    public function testLexerHasNoErrorsByDefault()
+    {
+        $this->assertNull($this->lexer->getError(), "Should be NULL by default");
+    }
+
     public function testLexerAcceptsSingleDefinition()
     {
         $tokenDef = new Token("regex", "identifier");
@@ -179,6 +184,51 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         $match = $token->getMatch();
         $this->assertEquals($text, $match[0]);
         $this->assertEquals(123, $match[1], "Capture group should have matched numbers");
+    }
+
+    ////////////////////////////////////////////////////////////////////////
+    // Error reporting of lexer
+    ////////////////////////////////////////////////////////////////////////
+
+    public function testTokenizeReturnsFalseWhenErrorOccurs()
+    {
+        $tokenDef = $this->createTokenDefinition("regex", "identifier");
+        $lexer = new Lexer($tokenDef);
+
+        $result = $lexer->tokenize("blaba bla");
+
+        $this->assertFalse($result, "Should return false if lexer cannot tokenize");
+    }
+    
+    public function testTokenizeHasErrorWhenTokenizingFailed()
+    {
+        $tokenDef = $this->createTokenDefinition("regex", "identifier");
+        $lexer = new Lexer($tokenDef);
+
+        $result = $lexer->tokenize("blaba bla");
+
+        $error = $lexer->getError();
+        $this->assertTrue(is_array($error), "Error object should be array");
+        $this->assertEquals(1, $error['line']);
+        $this->assertEquals(0, $error['offset']);
+        $this->assertNotNull($error['description']);
+    }
+
+    public function testErrorIsResetWhenNewTextIsTokenized()
+    {
+        $tokenDef = $this->createTokenDefinition("regex", "identifier");
+        $lexer = new Lexer($tokenDef);
+
+        $result = $lexer->tokenize("blaba bla");
+
+        $error = $lexer->getError();
+        $this->assertNotNull($error, "Should have error");
+
+        // Start new lexing
+        $result = $lexer->tokenize("regex");
+
+        $this->assertTrue(is_array($result), "Should be array of tokens.");
+        $this->assertNull($lexer->getError(), "Error should have disappeared");
     }
 
     ////////////////////////////////////////////////////////////////////////
