@@ -60,6 +60,10 @@ class Lexer
     /**
      * Tokenize the given text. 
      *
+     * When a part of a text is matched by a token definition, the method creates a clone
+     * of the token definition and fills in the position of the match and the match itself. 
+     * This token will then be added to the array that is returned.
+     *
      * @param string $text  The text that should be tokenized
      *
      * @throws InvalidArgumentException     When the given text cannot be parsed. The exception 
