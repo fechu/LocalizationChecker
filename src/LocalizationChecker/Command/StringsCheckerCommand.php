@@ -11,6 +11,7 @@ use SM\Lexer\Lexer;
 use SM\String\UTF16Decoder;
 use LocalizationChecker\Lexer\TranslationEntryToken;
 use LocalizationChecker\Lexer\CommentToken;
+use LocalizationChecker\File\StringsFile;
 
 /**
  * Class StringsCheckerCommand
@@ -26,15 +27,15 @@ class StringsCheckerCommand extends Command
     protected $output;
 
     /**
-     * Contains an associatve array which has the file paths as keys and the tokenized 
-     * version of the content as the value.
+     * Contains an associatve array which has the file paths as keys and the according
+     * StringsFile object as the value.
      */
-    protected $tokens;
+    protected $files;
 
     protected function configure()
     {
         // Setup
-        $this->tokens = array();
+        $this->files = array();
 
         $this->setName('check:strings');
         $this->setDescription('Check the contents of *.strings files.');
@@ -88,11 +89,52 @@ EOF
         // Parse the files.
         $errorCount += $this->parseFiles($files);
 
-        // Check if all keys of the first file exist in the rest of the files.
+        if ($errorCount == 0) {
+            // Check if all keys of the first file exist in the rest of the files.
+            $errorCount += $this->checkTranslationKeys($files[0]);
+        }
 
         // Exit code should be number of errors.
         return $errorCount;
     }
+
+    /**
+     * Checks the keys in the translation files
+     *
+     * @param string $baseFile  The path to the file which should be used as the reference.
+     *                          The other files get checked against this file.    
+     *
+     * @return int The number of missing keys.
+     */
+    protected function checkTranslationKeys($baseFilePath)
+    {
+        // Initialization
+        $errorCount = 0;
+        $baseFile = $this->files[$baseFilePath];
+
+        $keysToCheck = $baseFile->getTranslationKeys();
+        
+        foreach ($this->files as $path => $file){
+            // Check if the file contains all the keys
+            $containsAllKeys = $file->containsTranslationKeys($keysToCheck);
+            if (!$containsAllKeys) {
+                // Do more investigation on that file
+                $this->output->writeln(
+                    '<error>File "' . $path . '" has missing keys:</error>'
+                );
+
+                foreach ($keysToCheck as $key){
+                    if(!$file->containsTranslationKeys($key)) {
+                        $errorCount++;
+                        $this->output->writeln(" - " .  $key );
+                    }
+                }
+            }
+        }
+        
+        return $errorCount;
+    }
+    
 
     /**
      * Parses an array of files
@@ -114,7 +156,8 @@ EOF
             }
             else {
                 // Add the result to the tokens array
-                $this->tokens[$file] = $result;
+                $stringsFile = new StringsFile($result);
+                $this->files[$file] = $stringsFile;
             }
         }
 

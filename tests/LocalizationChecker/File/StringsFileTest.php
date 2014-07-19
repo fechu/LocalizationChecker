@@ -24,6 +24,7 @@ class StringsFileTest extends \PHPUnit_Framework_TestCase
             'key', 
             'a Translation'
         ), 1, 1);
+
         $tokens = array(
             $translationToken
         );
@@ -56,12 +57,39 @@ class StringsFileTest extends \PHPUnit_Framework_TestCase
 
     public function testContainsKeyReturnsFalseIfKeyIsNotInFile()
     {
-        $this->assertFalse($this->file->containsTranslationKey("another.key"));
+        $this->assertFalse($this->file->containsTranslationKeys("another.key"));
     }
 
     public function testContainsKeyReturnsTrueIfKeyIsInFile()
     {
-        $this->assertTrue($this->file->containsTranslationKey("key"));
+        $this->assertTrue($this->file->containsTranslationKeys("key"));
+    }
+
+    public function testContainsKeyReturnsTrueForMultipleKeysInFile()
+    {
+        $translationToken1 = new TranslationEntryToken();
+        $translationToken1->setMatch(array(
+            '"key" = "a Translation";',
+            'key', 
+            'a Translation'
+        ), 1, 1);
+
+        $translationToken2 = new TranslationEntryToken();
+        $translationToken2->setMatch(array(
+            '"second.key" = "a Translation";',
+            'second.key', 
+            'a Translation'
+        ), 2, 1);
+
+        $tokens = array(
+            $translationToken1,
+            $translationToken2
+        );
+        $file= new StringsFile($tokens);
+
+        $this->assertTrue($file->containsTranslationKeys(array("second.key", "key")));
+        $this->assertTrue($file->containsTranslationKeys(array("key")));
+
     }
     
 }

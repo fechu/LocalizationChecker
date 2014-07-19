@@ -53,9 +53,17 @@ class StringsFile
         *
         * @return bool  True if the file contains the key, false otherwise
      */
-    public function containsTranslationKey($key)
+    public function containsTranslationKeys($key)
     {
-        return in_array($key, $this->translationKeys);
+        if (!is_array($key)) {
+            $key = array($key);
+        }
+
+        // Use http://stackoverflow.com/a/7542708/262534 to identify if all the keys are
+        // in the file
+        $intersectionCount = count(array_intersect($this->translationKeys, $key));
+        $keyCount = count($key);
+        return $intersectionCount == $keyCount;
     }
     
 
