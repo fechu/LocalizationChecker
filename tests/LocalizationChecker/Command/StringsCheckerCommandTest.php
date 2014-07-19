@@ -46,6 +46,7 @@ class StringsCheckerCommandTest extends \PHPUnit_Framework_TestCase
 
     public function testReturnsNonzeroStatuscodeWhenKeysDontExist()
     {
+        $this->markTestIncomplete();
         $commandTester = $this->executeCommand(array(
             "tests/resources/en.lproj/MissingKey.strings",
             "tests/resources/de.lproj/MissingKey.strings"
