@@ -2,7 +2,7 @@
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use LocalizationChecker\Command\StringsCheckerCommand;
+use LocalizationChecker\Command\StringsCommand;
 
 class StringsCheckerCommandTest extends \PHPUnit_Framework_TestCase
 {
@@ -82,7 +82,7 @@ class StringsCheckerCommandTest extends \PHPUnit_Framework_TestCase
         }
 
         $application = new Application();
-        $application->add(new StringsCheckerCommand());
+        $application->add(new StringsCommand());
 
         $command = $application->find('check:strings');
         $commandTester = new CommandTester($command);

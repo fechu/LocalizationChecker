@@ -14,10 +14,11 @@ use LocalizationChecker\Lexer\CommentToken;
 use LocalizationChecker\File\StringsFile;
 
 /**
- * Class StringsCheckerCommand
+ * The strings command handles parsing and comparing of .strings files.
+ *
  * @author Sandro Meier
  */
-class StringsCheckerCommand extends Command
+class StringsCommand extends Command
 {
     /**
      * Reference to the output interface object which can be used to output something
