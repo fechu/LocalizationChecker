@@ -21,7 +21,7 @@ reference. I suggest you to supply the "original" language as the first argument
 
 Basic command to check multiple **folders** with `.strings` files:
 
-    php checker.php check:strings-folder en.lproj de.lproj
+    php checker.php check:strings-folder en.lproj/ de.lproj/
 
 All `.strings` files in the folder are searched. Then the tool will check if in all files are 
 present in all folders. Again the first folder is taken as the reference. when that check was 
@@ -34,6 +34,10 @@ and check if all keys are there.
 - Add options to disable tests
 - Add check for empty keys 
 - Add check for keys whichs value is equal to the key (not yet translated)
+
+## Known Issues
+
+- `check:strings-folder` command works only if all folders have trailing slashes.
 
 
 ## Development
