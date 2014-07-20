@@ -6,6 +6,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use \SplFileInfo;
+use Symfony\Component\Finder\Finder;
 
 
 /**
@@ -21,6 +23,18 @@ class StringsFolderCommand extends Command
      * the relative paths to the files are listed.
      */
     protected $folders;
+
+    /**
+     * The path to the folder which should be used as a reference.
+     */
+    protected $baseFolder;
+
+    /**
+     * Reference to the output interface objects. 
+     *
+     * This way not only the execute() method can produce output.
+     */
+    protected $output;
 
     public function configure()
     {
@@ -66,22 +80,89 @@ EOF
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // Store a reference to the output object
+        $this->output = $output;
+
         $folders = $input->getArgument('folders');
         if (!$folders) {
             $output->writeln("<error>No folders to check</error>");
             return -1;
         }
 
+        // Check if all of these supplied paths are real folders
+        foreach ($folders as $folderPath){
+            $folderInfo = new SplFileInfo($folderPath);
+            if(!$folderInfo->isDir()) {
+                // We got a non folder as an argument.
+                $output->writeln('<error>Object at path "' . $folderPath . '" is either not a folder or does not exist.');
+                return -1;
+            }
+        }
+
+        // Store a reference to the base folder
+        // The base folder is the first one that is supplied.
+        $this->baseFolder = $folders[0];
+
         // Parse all folders
-        
+        $this->parseFolders($folders);
+
+        // Check if all files in the baseFolder exist in the other folders.
+        $errorCount = $this->checkFoldersAgainstBaseFolder();
+
+        return $errorCount;
     }
 
     /**
-     * Parse the array of folders and fill the 
+     * Parse the array of folders and fill the $folders property.
      */
     protected function parseFolders($folders)
     {
-        
+        foreach ($folders as $folderPath){
+
+            // Prepare the array in the files array.
+            $this->folders[$folderPath] = array();
+
+            // Find all the *.strings files
+            $finder = new Finder();
+            $finder
+                ->files()
+                ->name("*.strings")
+                ->in($folderPath);
+
+            foreach ($finder as $filePath){
+                $this->folders[$folderPath][] = $filePath;
+            }
+        }
+    }
+
+    protected function checkFoldersAgainstBaseFolder()
+    {
+        // Initialization
+        $errorCount = 0;
+
+        // Precalculations
+        $filesToCheck = $this->folders[$this->baseFolder];
+        $filesToCheckCount = count($filesToCheck);
+
+        foreach ($this->folders as $folder => $files){
+            // Check if they are equal with the filesToCheck array
+            $intersectionCount = array_intersect($filesToCheck, $files);
+
+            if ($intersectionCount != $filesToCheckCount) {
+                // There are some files missing. Do a closer investigation
+                foreach ($filesToCheck as $file) {
+                    if (!in_array($file, $files)) {
+                        $errorCount++;
+                        $this->output->writeln(
+                            '<error>File "'. $file .'" missing in folder "'. $folder .'"</error>'
+                        );
+                    }
+                }
+            }
+        }
+
+        return $errorCount;
     }
     
+
 }

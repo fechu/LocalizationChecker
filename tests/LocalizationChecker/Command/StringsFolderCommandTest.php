@@ -17,7 +17,49 @@ class StringsFolderCommandTest extends \PHPUnit_Framework_TestCase
             "Should return -1 if no folders given to check."
         );
     }
+
+    public function testStatusCodeIsCorrectIfOnePathIsNotAFolder()
+    {
+        $commandTester = $this->executeCommand(array(
+            "tests/resources/CorrectSyntax.strings" // Not a folder
+        ));
+
+        $this->assertEquals(
+            -1, 
+            $commandTester->getStatusCode(),
+            "Should return -1 if one of the given paths is not a folder"
+        );
+    }
+
+    public function testStatusCodeIfFileMissingInAFolder()
+    {
+        $commandTester = $this->executeCommand(array(
+            "tests/resources/en-MissingFile.lproj",
+            "tests/resources/de-MissingFile.lproj"
+        ));
+
+        $this->assertEquals(
+            1,
+            $commandTester->getStatusCode(),
+            "Should return 1 as there's 1 file missing"
+        );
+        
+    }
     
+    public function testStatusCodeIfMultipleFilesMissingInAFolder()
+    {
+        $commandTester = $this->executeCommand(array(
+            "tests/resources/en-TwoMissingFiles.lproj",
+            "tests/resources/de-TwoMissingFiles.lproj"
+        ));
+
+        $this->assertEquals(
+            2,
+            $commandTester->getStatusCode(),
+            "Should return 2 as there are 2 files missing"
+        );
+        
+    }
 
 
     ////////////////////////////////////////////////////////////////////////
