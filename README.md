@@ -38,6 +38,7 @@ and check if all keys are there.
 ## Known Issues
 
 - `check:strings-folder` command works only if all folders have trailing slashes.
+- `check:strings` does not work with multiline translation values
 
 
 ## Development
