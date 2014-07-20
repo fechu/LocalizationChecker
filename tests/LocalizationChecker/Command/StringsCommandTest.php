@@ -71,6 +71,15 @@ class StringsCommandTest extends \PHPUnit_Framework_TestCase
         );
     }
     
+    public function testThrowsExceptionIfSuppliedFileDoesNotExist()
+    {
+        $this->setExpectedException("InvalidArgumentException");
+
+        $commandTester = $this->executeCommand(array(
+            "file/does/not/exist.strings"
+        ));
+    }
+    
     
 
     ////////////////////////////////////////////////////////////////////////

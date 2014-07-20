@@ -12,6 +12,7 @@ use SM\String\UTF16Decoder;
 use LocalizationChecker\Lexer\TranslationEntryToken;
 use LocalizationChecker\Lexer\CommentToken;
 use LocalizationChecker\File\StringsFile;
+use \SplFileInfo;
 
 /**
  * The strings command handles parsing and comparing of .strings files.
@@ -180,10 +181,10 @@ EOF
      */
     protected function parseFile($path)
     {
-        $fs = new Filesystem();
+        $fileInfo = new SplFileInfo($path);
 
         // Check if the given file exists
-        if(!$fs->exists($path)) {
+        if(!$fileInfo->isFile()) {
             throw new \InvalidArgumentException(
                 "File at path \"" . $path . "\" does not exist."
             );
