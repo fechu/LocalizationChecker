@@ -85,6 +85,7 @@ EOF
         $files = $input->getArgument('files');
         if (!$files) {
             $output->writeln("<error>No files to check</error>");
+            return -1;
         }
 
         // Parse the files.

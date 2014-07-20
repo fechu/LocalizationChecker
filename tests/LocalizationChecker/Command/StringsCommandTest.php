@@ -4,7 +4,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use LocalizationChecker\Command\StringsCommand;
 
-class StringsCheckerCommandTest extends \PHPUnit_Framework_TestCase
+class StringsCommandTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testValidatesSyntaxOfSingleCorrectFile()
@@ -44,6 +44,18 @@ class StringsCheckerCommandTest extends \PHPUnit_Framework_TestCase
             "Should return 2 if a Syntax error occured in one file."
         );
     }
+
+    public function testStatusCodeIsCorrectIfNoFilesGiven()
+    {
+        $commandTester = $this->executeCommand(array());
+
+        $this->assertEquals(
+            -1, 
+            $commandTester->getStatusCode(),
+            "Should return -1 if no files given to check."
+        );
+    }
+    
 
     public function testReturnsNonzeroStatuscodeWhenKeysDontExist()
     {
