@@ -36,9 +36,6 @@ class StringsCommand extends Command
 
     protected function configure()
     {
-        // Setup
-        $this->files = array();
-
         $this->setName('check:strings');
         $this->setDescription('Check the contents of *.strings files.');
         $this->addArgument(
@@ -147,7 +144,11 @@ EOF
      */
     protected function parseFiles($files)
     {
+        // Initialzation
         $errorCount = 0;
+
+        // Reset files array
+        $this->files = array();
 
         // Parse all files
         foreach($files as $file) {
