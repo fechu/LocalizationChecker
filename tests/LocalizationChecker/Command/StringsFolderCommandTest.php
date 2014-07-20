@@ -58,7 +58,6 @@ class StringsFolderCommandTest extends \PHPUnit_Framework_TestCase
             $commandTester->getStatusCode(),
             "Should return 2 as there are 2 files missing"
         );
-        
     }
 
 
@@ -85,14 +84,11 @@ class StringsFolderCommandTest extends \PHPUnit_Framework_TestCase
         $application = new Application();
         $application->add(new StringsFolderCommand());
 
-        $command = $application->find('check:strings');
+        $command = $application->find('check:strings-folder');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(
-            array(
-                'command'   => $command->getName(),
-                'folders'   => $folders
-            )
-        );
+        $commandTester->execute( array(
+            'folders'   => $folders
+        ));
 
         return $commandTester;
     }

@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use \SplFileInfo;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Console\Input\ArrayInput;
 
 
 /**
@@ -19,8 +20,8 @@ use Symfony\Component\Finder\Finder;
 class StringsFolderCommand extends Command
 {
     /**
-     * An associative array for each folder that was supplied. In that array
-     * the relative paths to the files are listed.
+     * An associative array for each folder that was supplied. The objects associated with 
+     * each folder are SplFileInfo objects. To get the filename you can use getRelativePathname().
      */
     protected $folders;
 
@@ -109,6 +110,11 @@ EOF
         // Check if all files in the baseFolder exist in the other folders.
         $errorCount = $this->checkFoldersAgainstBaseFolder();
 
+        // Run the StringsCommand on all files if there haven't been any errors so far.
+        if ($errorCount == 0) {
+            $errorCount = $this->checkStrings();
+        }
+
         return $errorCount;
     }
 
@@ -129,12 +135,20 @@ EOF
                 ->name("*.strings")
                 ->in($folderPath);
 
-            foreach ($finder as $filePath){
-                $this->folders[$folderPath][] = $filePath;
+            foreach ($finder as $fileObject){
+                $this->folders[$folderPath][] = $fileObject;
             }
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////
+    // Checks
+    ////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Checks if all files in the base folder ($baseFolder) are also present in the
+     * other folders. 
+     */
     protected function checkFoldersAgainstBaseFolder()
     {
         // Initialization
@@ -153,14 +167,53 @@ EOF
                 foreach ($filesToCheck as $file) {
                     if (!in_array($file, $files)) {
                         $errorCount++;
+                        $filename = $file->getRelativePathname();
                         $this->output->writeln(
-                            '<error>File "'. $file .'" missing in folder "'. $folder .'"</error>'
+                            '<error>File "'. $filename .'" missing in folder "'. $folder .'"</error>'
                         );
                     }
                 }
             }
         }
 
+        return $errorCount;
+    }
+    
+    /**
+     * Checks all the strings files using the StringsCommand. 
+     *
+     * Run this command only if run checkFolderAgainstBaseFolder sucessfully. Otherwhise
+     * there may be unexpected behaviour. 
+     *
+     * This method will run the StringsCommand on all pairs of files in the folders. E.g. all 
+     * files that have the same relative path. 
+     */
+    protected function checkStrings()
+    {
+        // We expect that all files in the base folder are available in all other folders. 
+        // This means, we can just use the base folder to get the relative path names and prepend
+        // the folder names. Let's do it!
+
+        $errorCount = 0;
+        $baseFolderFiles = $this->folders[$this->baseFolder];
+
+        foreach ($baseFolderFiles as $file) {
+            // Prepare the arguments
+            $filesArgument = array();
+            foreach ($this->folders as $folder => $files){
+                $filesArgument[] = $folder . $file->getRelativePathname();
+            }
+
+            $arguments = array(
+                "files" => $filesArgument,
+            );
+
+            // Start the StringsCommand
+            $command = $this->getApplication()->find("check:strings");
+            $input = new ArrayInput($arguments);
+            $errorCount += $command->run($input, $this->output); 
+        }
+            
         return $errorCount;
     }
     
