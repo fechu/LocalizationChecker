@@ -31,9 +31,13 @@ and check if all keys are there.
 ## Todo
 
 - Add Screenshot to README
-- Add options to disable tests
-- Add check for empty keys 
-- Add check for keys whichs value is equal to the key (not yet translated)
+- Add options to disable specific tests
+
+### Further tests to add
+
+- Check for empty keys 
+- Check for keys whichs value is equal to the key (not yet translated)
+- Compare number of placeholders
 
 ## Known Issues
 
