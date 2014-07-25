@@ -35,9 +35,10 @@ and check if all keys are there.
 
 ### Further tests to add
 
-- Check for empty keys 
+- Check for empty values
 - Check for keys whichs value is equal to the key (not yet translated)
 - Compare number of placeholders
+- Check for duplicated keys
 
 ## Known Issues
 
